@@ -1,0 +1,56 @@
+import heapq
+
+# Define the graph: nodes represent towns, edges represent roads with distances
+graph = {
+    'Origin': {'A': 40, 'B': 60, 'C': 50},
+    'A': {'B': 10, 'D': 70},
+    'B': {'C': 20, 'D': 55, 'E': 40},
+    'C': {'E': 50},
+    'D': {'Destination': 60},
+    'E': {'Destination': 80},
+    'Destination': {}
+}
+
+def dijkstra(graph, start, end):
+    # Initialize distances: set all nodes to infinity except the start node
+    shortest_distances = {node: float('inf') for node in graph}
+    shortest_distances[start] = 0
+    
+    # Initialize predecessors: to reconstruct the shortest path later
+    previous_nodes = {node: None for node in graph}
+    
+    # Create a priority queue and add the start node with distance 0
+    priority_queue = [(0, start)]
+    
+    while priority_queue:
+        # Pop the node with the smallest distance
+        current_distance, current_node = heapq.heappop(priority_queue)
+        
+        # If we reached the destination node, we can stop
+        if current_node == end:
+            break
+        
+        # Explore all neighbors of the current node
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+            # If a shorter path to the neighbor is found
+            if distance < shortest_distances[neighbor]:
+                shortest_distances[neighbor] = distance
+                previous_nodes[neighbor] = current_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+    
+    # Reconstruct the shortest path by tracing predecessors
+    path = []
+    current = end
+    while current is not None:
+        path.insert(0, current)
+        current = previous_nodes[current]
+    
+    return path, shortest_distances[end]
+
+# Call the function to find the shortest path from Origin to Destination
+shortest_path, total_distance = dijkstra(graph, 'Origin', 'Destination')
+
+# Print the results
+print("Shortest path:", " -> ".join(shortest_path))
+print("Total distance:", total_distance, "miles")
